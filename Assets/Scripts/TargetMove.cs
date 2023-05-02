@@ -38,6 +38,10 @@ public class TargetMove : MonoBehaviour
     void Update()
     {
         if(transform.position.x > 7f || transform.position.y < -1f){
+            // user didn't click and we went out of frame
+            if(!gameObject.name.Contains("onion")){
+                gmScript.SubtractLife();    
+            }
             Destroy(gameObject);
         }
     }
@@ -50,6 +54,13 @@ public class TargetMove : MonoBehaviour
                 Instantiate(splash, gameObject.transform.position, gameObject.transform.rotation);
                 Instantiate(gmScript.targetHalves[i], gameObject.transform.position, gameObject.transform.rotation);
                 Instantiate(gmScript.targetHalves[i], gameObject.transform.position, gameObject.transform.rotation);
+                // upd score
+                int calculatedScoreChange = 10;
+                if(gameObject.name.Contains("onion")){
+                    calculatedScoreChange = -5;
+                }
+                gmScript.ChangeScore(calculatedScoreChange);
+
                 Destroy(gameObject);
             }
         }
