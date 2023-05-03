@@ -12,6 +12,16 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     public GameObject[] targetHalves;
 
+     [SerializeField]
+    public GameObject[] spawnLocs;
+
+    public AudioClip[] chopAudioClips;
+
+    public AudioClip[] wrongAudioClips;
+
+    public AudioSource audioSrc;
+
+
     private int points = 0;
     private int lives = 5;
 
@@ -39,6 +49,11 @@ public class GameManager : MonoBehaviour
 
     [SerializeField]
     private GameObject menuGroup;
+
+    [SerializeField]
+    private GameObject fruitSpawnForceFocusPoint;
+
+
 
     private void UpdateScore(){
         scoreText.text = "Score: " + points + "\n" + "Lives: " + lives;
@@ -89,9 +104,11 @@ public class GameManager : MonoBehaviour
     }
 
     private Vector3 StartingPosition(){
-        float x = Random.Range(-4.5f, -5f);
+        /*float x = Random.Range(-4.5f, -5f);
         Vector3 location = new Vector3(x,0, -1f);
-        return location;
+        return location;*/
+        GameObject spawnLocationGameObj = spawnLocs[Random.Range(0, spawnLocs.Length)];
+        return spawnLocationGameObj.transform.position;
     }
 
     // Update is called once per frame
@@ -126,5 +143,19 @@ public class GameManager : MonoBehaviour
         if(spawningCoroutine != null) StopCoroutine(spawningCoroutine);
         spawningCoroutine = null;
         // there is a rare case that can cause two coroutines to be running at once so I am stopping it anyways
+        
+    }
+
+    // random audio clip utils
+    public void PlayChop(){
+        audioSrc.PlayOneShot(chopAudioClips[Random.Range(0, chopAudioClips.Length)]);
+    }
+
+    public void PlayWrong(){
+        audioSrc.PlayOneShot(wrongAudioClips[Random.Range(0, wrongAudioClips.Length)]);
+    }
+
+    public Vector3 GetForceVectorToFocus(Vector3 position){
+        return (fruitSpawnForceFocusPoint.transform.position - position).normalized;
     }
 }
