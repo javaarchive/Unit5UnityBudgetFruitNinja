@@ -32,10 +32,13 @@ public class GameManager : MonoBehaviour
     private TextMeshProUGUI gameOverText;
 
     [SerializeField]
-    private Button gameOverMenuButton;
+    private GameObject gameOverGroup;
 
     [SerializeField]
-    private Button menuGroup;
+    private UnityEngine.UI.Button gameOverMenuButton;
+
+    [SerializeField]
+    private GameObject menuGroup;
 
     private void UpdateScore(){
         scoreText.text = "Score: " + points + "\n" + "Lives: " + lives;
@@ -55,19 +58,34 @@ public class GameManager : MonoBehaviour
     {
         points = 0;
         lives = 5;
-        gameOverText.gameObject.SetActive(false);
         spawningCoroutine = SpawnTarget();
         // StartCoroutine(spawningCoroutine);
         UpdateScore();
+        // scoreText.gameObject.SetActive(false); // hide score as we are in menu
+        
+        // make the return to menu button for game over work. 
+        gameOverMenuButton.onClick.AddListener(EnterMenu);
+
+        EnterMenu();
+    }
+
+    void EnterMenu(){
+        if(spawningCoroutine != null){
+            StopCoroutine(spawningCoroutine);
+            spawningCoroutine = null;
+        }
+        scoreText.gameObject.SetActive(false);
+        menuGroup.gameObject.SetActive(true);
+        gameOverGroup.gameObject.SetActive(false);
     }
 
     private IEnumerator SpawnTarget(){
         while(CheckAlive()){
-            yield return new WaitForSeconds(spawnRate);
             int choice = Random.Range(0, targetPrefabs.Length);
             GameObject fruit = targetPrefabs[choice];
             Instantiate(fruit, StartingPosition(), fruit.transform.rotation);
-        }   
+            yield return new WaitForSeconds(spawnRate);
+        }
     }
 
     private Vector3 StartingPosition(){
@@ -83,22 +101,27 @@ public class GameManager : MonoBehaviour
     }
 
     public void ResetGame(float spawnRate = 1f){
+        Debug.Log("Resetting with spawn rate " + spawnRate + " secs ");
         this.spawnRate = spawnRate;
         points = 0;
         lives = 5;
         UpdateScore();
         if(spawningCoroutine != null){
             StopCoroutine(spawningCoroutine);
-            spawningCoroutine = SpawnTarget();
         }
+        spawningCoroutine = SpawnTarget();
         StartCoroutine(spawningCoroutine);
         scoreText.gameObject.SetActive(true);
-        gameOverText.gameObject.SetActive(false);
         menuGroup.gameObject.SetActive(false);
+        // gameOverText.gameObject.SetActive(false);
+        gameOverGroup.gameObject.SetActive(false);
     }
 
     private void OnDeath(){
-        gameOverText.gameObject.SetActive(true);
+        // gameOverText.gameObject.SetActive(true);
+        // instead of just controlling the text I find it easier to ref a group GameObject
+        gameOverGroup.gameObject.SetActive(true);
+
         // alternatively we can StopCoroutine the spawning logic here but changing it in the while loop also works
         if(spawningCoroutine != null) StopCoroutine(spawningCoroutine);
         spawningCoroutine = null;
